@@ -1,75 +1,79 @@
-# OpenFrame Overview
+# Transparent Self-Monitoring Microwatt
 
-The OpenFrame Project provides an empty harness chip that differs significantly from the Caravel and Caravan designs. Unlike Caravel and Caravan, which include integrated SoCs and additional features, OpenFrame offers only the essential padframe, providing users with a clean slate for their custom designs.
+**Hackathon:** [Microwatt Momentum – OpenPOWER HW Design Hackathon](https://chipfoundry.org/)  
+**Theme:** *"Microwatt for the open computing era"*
 
-<img width="256" alt="Screenshot 2024-06-24 at 12 53 39 PM" src="https://github.com/efabless/openframe_timer_example/assets/67271180/ff58b58b-b9c8-4d5e-b9bc-bf344355fa80">
+---
 
-## Key Characteristics of OpenFrame
+## 📌 Abstract
 
-1. **Minimalist Design:** 
-   - No integrated SoC or additional circuitry.
-   - Only includes the padframe, a power-on-reset circuit, and a digital ROM containing the 32-bit project ID.
+The **Transparent Self-Monitoring Microwatt** project aims to transform the open-source [Microwatt POWER CPU core](https://git.openpower.foundation/cores/microwatt) into a **self-observable and developer-friendly platform** by embedding real-time performance monitoring and telemetry capabilities directly into the CPU pipeline. While Microwatt already provides an accessible reference design for the POWER ISA, debugging and performance analysis often depend on external tools, intrusive instrumentation, or FPGA probes. This creates a barrier for students, researchers, and open-hardware developers who wish to study microarchitectural behavior or optimize workloads on resource-constrained platforms.
 
-2. **Padframe Compatibility:**
-   - The padframe design and pin placements match those of the Caravel and Caravan chips, ensuring compatibility and ease of transition between designs.
-   - Pin types are identical, with power and ground pins positioned similarly and the same power domains available.
+To address this, our design introduces a **lightweight telemetry and debug subsystem** that continuously monitors key pipeline signals and records essential performance metrics. These include **instructions per cycle (IPC), branch prediction accuracy, stall cycles, and memory latency metrics**, which are critical for both academic research and practical optimization. Additionally, we implement a configurable **on-chip trace buffer** that captures a short instruction history, enabling step-by-step workload analysis without external trace hardware.  
 
-3. **Flexibility:**
-   - Provides full access to all GPIO controls.
-   - Maximizes the user project area, allowing for greater customization and integration of alternative SoCs or user-specific projects at the same hierarchy level.
+All telemetry data is made accessible through **memory-mapped registers** within the OpenFrame SoC environment, and a **C software demo** demonstrates how to retrieve and visualize this information. For extended use, telemetry can also be exported through UART or JTAG interfaces, allowing integration with standard debugging workflows.  
 
-4. **Simplified I/O:**
-   - Pins that previously connected to CPU functions (e.g., flash controller interface, SPI interface, UART) are now repurposed as general-purpose I/O, offering flexibility for various applications.
+From a reproducibility standpoint, the project adheres to **hackathon requirements** by providing fully open-source RTL, AI prompt logs (if applicable), STA and SDF constraints, and OpenLane/chipIgnite configuration files for SKY130 implementation. This ensures that any participant or community member can reproduce results, validate design choices, and extend the work for future research.  
 
-The OpenFrame harness is ideal for those looking to implement custom SoCs or integrate user projects without the constraints of an existing SoC.
+By embedding self-monitoring into Microwatt, this project bridges the gap between **research CPUs** and **production observability frameworks**, helping the open-source hardware ecosystem advance toward **transparent, self-diagnosing processors**. The result is a powerful educational and research tool that empowers developers to learn CPU internals, debug complex workloads, and accelerate innovation in the open computing era.
 
-## Features
+---
 
-1. 44 configurable GPIOs.
-2. User area of approximately 15mm².
-3. Supports digital, analog, or mixed-signal designs.
+## 🚀 Key Features
+- **Performance Monitoring Counters (PMCs):** IPC, branch misprediction count, stall cycles, memory access latency.  
+- **On-Chip Trace Buffer:** Captures recent instruction PCs + opcodes, FIFO-based, triggered capture support.  
+- **Telemetry Export:** Memory-mapped registers, C demo software for stats, optional UART/JTAG export.  
+- **Verification & Reproducibility:** RTL-level testbenches, validation against software-instrumented models, documented OpenLane flow.  
 
-# openframe_timer_example
+---
 
-This example implements a simple timer and connects it to the GPIOs.
+## 🎯 Why This Project
+- **Practical & New:** Adds observability infrastructure directly inside Microwatt.  
+- **Educational Impact:** Helps students and researchers learn CPU behavior.  
+- **Community Benefit:** Improves reproducibility for Microwatt-based designs.  
+- **Feasible:** Modular RTL design fits OpenFrame SoC user area with clear scope.  
 
-## Installation and Setup
+---
 
-First, clone the repository:
+## 🛠 Tools & Platforms
+- [Microwatt CPU Core](https://git.openpower.foundation/cores/microwatt)  
+- ChipFoundry OpenFrame SoC Platform  
+- OpenPOWER ISA  
+- OpenLane / chipIgnite Flow on SKY130  
+- Simulation Tools: Verilator, GHDL, GTKWave  
+- Software Tools: GCC for POWER, GDB  
 
-```bash
-git clone https://github.com/efabless/openframe_timer_example.git
-cd openframe_timer_example
-```
+---
 
-Then, download all dependencies:
+## 📦 Deliverables (Aligned to Project Requirements)
+- **Short English Description:** This README contains the concise project summary and design overview.  
+- **Open-Source RTL & Integration:** VHDL/Verilog sources for the telemetry engine and Microwatt integration wrapper, published with **Apache-2.0** license.  
+- **OpenFrame Fit Artifacts:** Top-level OpenFrame user-project wrapper, IO/pin constraints, area/timing utilization reports, and a *fit/area report* demonstrating the design fits the OpenFrame User Project area.  
+- **Reproducible RTL Verification:** Self-contained testbenches (with Makefile/CIs or `scripts/run_sim.sh`), expected outputs, and waveform dumps; includes *golden logs* for pass/fail.  
+- **STA & SDF Collateral:** Timing constraints (`.sdc`), STA setup/hold reports, back-annotated **SDF** files, and simulation scripts showing SDF-annotated runs.  
+- **AI Usage Disclosure:** If AI was used, provide all prompts and session logs under `docs/ai/` (timestamps + context) as required.  
+- **Reproducible Physical Flow:** Complete **OpenLane/chipIgnite** configuration (`config.tcl`, `pin_order.cfg`, floorplan constraints), run scripts, and final run results (DRC/LVS/antenna/CTS/timing reports). Alternative open flows accepted if fully documented and reproducible.  
+- **SKY130 Compatibility:** Design targets **SKY130** standard-cell libraries; no custom cells required. Document used libraries and corners.  
+- **Precheck & Tapeout Proof:** ChipFoundry precheck pass logs and tapeout submission artifacts (manifests, checksums) included in `tapeout/`.  
+- **Demo Materials:** Screenshots and a **how-to / step-by-step** video link in `docs/demo/` demonstrating project creation and usage (may be used by ChipFoundry for promotion).  
+- **Software Examples:** Minimal C demo to read PMCs/trace via MMIO; optional UART/JTAG telemetry exporter.  
+- **Repo Repro Guide:** `docs/REPRODUCE.md` covering environment, Docker/conda image, exact commands, seeds, and expected outputs.
 
-```bash
-make setup
-```
+---
 
-## Hardening the Design
+## 🗓 Project Timeline
+1. **Week 1 (Proposal):** Define architecture, block diagrams, set up environment  
+2. **Weeks 2–3 (Implementation):** Develop counters, registers, trace buffer  
+3. **Week 4 (Verification):** Run testbenches, integrate demo software  
+4. **Final Week:** Prepare repo, documentation, demo video  
 
-In this example, we will harden the timer. You will need to harden your own design similarly.
+---
 
-```bash
-make user_proj_timer
-```
+## 📄 License
+Released under the **Apache 2.0 License** to ensure open-source adoption and community contributions.
 
-Once you have hardened your design, integrate it into the OpenFrame wrapper:
+---
 
-```bash
-make openframe_project_wrapper
-```
-
-## Important Notes
-
-1. **Connecting to Power:**
-   - Ensure your design is connected to power using the power pins on the wrapper.
-   - Use the `vccd1_connection` and `vssd1_connection` macros, which contain the necessary vias and nets for power connections.
-
-2. **Flattening the Design:**
-   - If you plan to flatten your design within the `openframe_project_wrapper`, do not buffer the analog pins using standard cells.
-
-3. **Running Custom Steps:**
-   - Execute the custom step in OpenLane that copies the power pins from the template DEF. If this step is skipped, the precheck will fail, and your design will not be powered.
+## 👥 Contributors
+- **Naveen Kumar Senthil Kumar** ([ns6503@nyu.edu](mailto:ns6503@nyu.edu))  
+- **Dhirajzen Bagawath Geetha Kumaravel** ([db5309@nyu.edu](mailto:db5309@nyu.edu))  
